@@ -1,0 +1,142 @@
+// 8. Configuración de usuario
+// Un sistema informático necesita almacenar configuraciones personalizadas de sus usuarios, como idioma, tema visual, nivel de acceso y sus preferencias generales
+// El programa debe permitir guardar y recuperar dichas configuraciones
+
+using System;
+using System.IO;
+using System.Text.Json;
+
+class Configuracion
+{
+    public string Idioma { get; set; }
+    public string Tema { get; set; }
+    public string NivelAcceso { get; set; }
+    public bool Notificaciones { get; set; }
+}
+
+class Programa
+{
+    static string archivo = "configuracion.json";
+
+    static void Main()
+    {
+        int opcion;
+
+        do
+        {
+            Console.Clear();
+
+            Console.WriteLine("=== CONFIGURACIÓN DE USUARIO ===");
+            Console.WriteLine("1. Guardar configuración");
+            Console.WriteLine("2. Mostrar configuración");
+            Console.WriteLine("3. Salir");
+
+            Console.Write("Seleccione una opción: ");
+
+            while (!int.TryParse(Console.ReadLine(), out opcion))
+            {
+                Console.Write("Ingrese una opción válida: ");
+            }
+
+            switch (opcion)
+            {
+                case 1:
+                    GuardarConfiguracion();
+                    break;
+
+                case 2:
+                    MostrarConfiguracion();
+                    break;
+
+                case 3:
+                    Console.WriteLine("Fin del programa.");
+                    break;
+
+                default:
+                    Console.WriteLine("Opción incorrecta.");
+                    break;
+            }
+
+            if (opcion != 3)
+            {
+                Console.WriteLine("\nPresione una tecla para continuar...");
+                Console.ReadKey();
+            }
+
+        } while (opcion != 3);
+    }
+
+    static void GuardarConfiguracion()
+    {
+        Configuracion config = new Configuracion();
+
+        Console.Write("Idioma: ");
+        config.Idioma = Console.ReadLine();
+
+        while (string.IsNullOrWhiteSpace(config.Idioma))
+        {
+            Console.Write("El idioma no puede estar vacío: ");
+            config.Idioma = Console.ReadLine();
+        }
+
+        Console.Write("Tema (Claro/Oscuro): ");
+        config.Tema = Console.ReadLine();
+
+        while (string.IsNullOrWhiteSpace(config.Tema))
+        {
+            Console.Write("Ingrese un tema válido: ");
+            config.Tema = Console.ReadLine();
+        }
+
+        Console.Write("Nivel de acceso: ");
+        config.NivelAcceso = Console.ReadLine();
+
+        while (string.IsNullOrWhiteSpace(config.NivelAcceso))
+        {
+            Console.Write("Ingrese un nivel válido: ");
+            config.NivelAcceso = Console.ReadLine();
+        }
+
+        string respuesta;
+
+        do
+        {
+            Console.Write("¿Activar notificaciones? (SI/NO): ");
+            respuesta = Console.ReadLine().ToUpper();
+        }
+        while (respuesta != "SI" && respuesta != "NO");
+
+        config.Notificaciones = (respuesta == "SI");
+
+        string json = JsonSerializer.Serialize(
+            config,
+            new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+        File.WriteAllText(archivo, json);
+
+        Console.WriteLine("\nConfiguración guardada correctamente.");
+    }
+
+    static void MostrarConfiguracion()
+    {
+        if (!File.Exists(archivo))
+        {
+            Console.WriteLine("\nNo existe configuración guardada.");
+            return;
+        }
+
+        string json = File.ReadAllText(archivo);
+
+        Configuracion config =
+            JsonSerializer.Deserialize<Configuracion>(json);
+
+        Console.WriteLine("\n=== CONFIGURACIÓN ACTUAL ===");
+        Console.WriteLine("Idioma: " + config.Idioma);
+        Console.WriteLine("Tema: " + config.Tema);
+        Console.WriteLine("Nivel de acceso: " + config.NivelAcceso);
+        Console.WriteLine("Notificaciones: " + config.Notificaciones);
+    }
+}
