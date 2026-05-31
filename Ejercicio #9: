@@ -1,0 +1,172 @@
+// 9. Información estudiantil
+// Una institución educativa necesita almacenar información detallada de estudiantes, incluyendo nombre, carrera, promedio general y asignaturas matriculadas
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+
+class Estudiante
+{
+    public string Nombre { get; set; } = "";
+    public string Carrera { get; set; } = "";
+    public double Promedio { get; set; }
+    public List<string> Asignaturas { get; set; } = new List<string>();
+}
+
+class Program
+{
+    static string archivo = "estudiante.json";
+
+    static void Main()
+    {
+        int opcion;
+
+        do
+        {
+            Console.Clear();
+
+            Console.WriteLine("=== INFORMACIÓN ESTUDIANTIL ===");
+            Console.WriteLine("1. Guardar estudiante");
+            Console.WriteLine("2. Mostrar estudiante");
+            Console.WriteLine("3. Salir");
+            Console.Write("\nSeleccione una opción: ");
+
+            while (!int.TryParse(Console.ReadLine(), out opcion))
+            {
+                Console.Write("Ingrese una opción válida: ");
+            }
+
+            switch (opcion)
+            {
+                case 1:
+                    GuardarEstudiante();
+                    break;
+
+                case 2:
+                    MostrarEstudiante();
+                    break;
+
+                case 3:
+                    Console.WriteLine("Programa finalizado.");
+                    break;
+
+                default:
+                    Console.WriteLine("Opción incorrecta.");
+                    break;
+            }
+
+            if (opcion != 3)
+            {
+                Console.WriteLine("\nPresione una tecla para continuar...");
+                Console.ReadKey();
+            }
+
+        } while (opcion != 3);
+    }
+
+    static void GuardarEstudiante()
+    {
+        Estudiante estudiante = new Estudiante();
+
+        Console.Write("Nombre: ");
+        estudiante.Nombre = Console.ReadLine() ?? "";
+
+        while (string.IsNullOrWhiteSpace(estudiante.Nombre))
+        {
+            Console.Write("El nombre no puede estar vacío: ");
+            estudiante.Nombre = Console.ReadLine() ?? "";
+        }
+
+        Console.Write("Carrera: ");
+        estudiante.Carrera = Console.ReadLine() ?? "";
+
+        while (string.IsNullOrWhiteSpace(estudiante.Carrera))
+        {
+            Console.Write("La carrera no puede estar vacía: ");
+            estudiante.Carrera = Console.ReadLine() ?? "";
+        }
+
+        double promedio;
+
+        Console.Write("Promedio general: ");
+
+        while (!double.TryParse(Console.ReadLine(), out promedio)
+               || promedio < 0
+               || promedio > 100)
+        {
+            Console.Write("Ingrese un promedio válido (0-100): ");
+        }
+
+        estudiante.Promedio = promedio;
+
+        int cantidad;
+
+        Console.Write("Cantidad de asignaturas: ");
+
+        while (!int.TryParse(Console.ReadLine(), out cantidad)
+               || cantidad <= 0)
+        {
+            Console.Write("Ingrese una cantidad válida: ");
+        }
+
+        for (int i = 1; i <= cantidad; i++)
+        {
+            string asignatura;
+
+            Console.Write("Asignatura " + i + ": ");
+            asignatura = Console.ReadLine() ?? "";
+
+            while (string.IsNullOrWhiteSpace(asignatura))
+            {
+                Console.Write("Ingrese un nombre válido: ");
+                asignatura = Console.ReadLine() ?? "";
+            }
+
+            estudiante.Asignaturas.Add(asignatura);
+        }
+
+        string json = JsonSerializer.Serialize(
+            estudiante,
+            new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+        File.WriteAllText(archivo, json);
+
+        Console.WriteLine("\nInformación guardada correctamente.");
+    }
+
+    static void MostrarEstudiante()
+    {
+        if (!File.Exists(archivo))
+        {
+            Console.WriteLine("\nNo existe información guardada.");
+            return;
+        }
+
+        string json = File.ReadAllText(archivo);
+
+        Estudiante? estudiante =
+            JsonSerializer.Deserialize<Estudiante>(json);
+
+        if (estudiante == null)
+        {
+            Console.WriteLine("Error al leer el archivo.");
+            return;
+        }
+
+        Console.WriteLine("\n=== DATOS DEL ESTUDIANTE ===");
+        Console.WriteLine("Nombre: " + estudiante.Nombre);
+        Console.WriteLine("Carrera: " + estudiante.Carrera);
+        Console.WriteLine("Promedio: " + estudiante.Promedio);
+
+        Console.WriteLine("\nAsignaturas matriculadas:");
+
+        foreach (string asignatura in estudiante.Asignaturas)
+        {
+            Console.WriteLine("- " + asignatura);
+        }
+    }
+}
