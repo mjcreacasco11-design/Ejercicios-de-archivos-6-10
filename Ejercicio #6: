@@ -1,0 +1,127 @@
+// 6. Agenda dígital de contactos
+// Una empresa pequeña necesita almacenar la información de sus clientes frecuentes
+// El programa debe guardar nombres, teléfonos y correos electrónicos, permitiendo luego consultar la lista completa.
+
+using System;
+using System.IO;
+
+class AgendaDigital
+{
+    static string archivo = "contactos.csv";
+
+    static void Main()
+    {
+        int opcion;
+
+        do
+        {
+            Console.Clear();
+
+            Console.WriteLine("===== AGENDA DIGITAL =====");
+            Console.WriteLine("1. Agregar contacto");
+            Console.WriteLine("2. Mostrar contactos");
+            Console.WriteLine("3. Salir");
+            Console.Write("Seleccione una opción: ");
+
+            while (!int.TryParse(Console.ReadLine(), out opcion))
+            {
+                Console.Write("Ingrese un número válido: ");
+            }
+
+            switch (opcion)
+            {
+                case 1:
+                    AgregarContacto();
+                    break;
+
+                case 2:
+                    MostrarContactos();
+                    break;
+
+                case 3:
+                    Console.WriteLine("Saliendo...");
+                    break;
+
+                default:
+                    Console.WriteLine("Opción no válida.");
+                    break;
+            }
+
+            if (opcion != 3)
+            {
+                Console.WriteLine("\nPresione una tecla para continuar...");
+                Console.ReadKey();
+            }
+
+        } while (opcion != 3);
+    }
+
+    static void AgregarContacto()
+    {
+        string nombre;
+        string telefono;
+        string correo;
+
+        Console.Write("\nNombre: ");
+        nombre = Console.ReadLine();
+
+        while (string.IsNullOrWhiteSpace(nombre))
+        {
+            Console.Write("El nombre no puede estar vacío: ");
+            nombre = Console.ReadLine();
+        }
+
+        Console.Write("Teléfono: ");
+        telefono = Console.ReadLine();
+
+        while (!long.TryParse(telefono, out _))
+        {
+            Console.Write("Ingrese solo números: ");
+            telefono = Console.ReadLine();
+        }
+
+        Console.Write("Correo electrónico: ");
+        correo = Console.ReadLine();
+
+        while (!correo.Contains("@") || !correo.Contains("."))
+        {
+            Console.Write("Correo inválido. Intente nuevamente: ");
+            correo = Console.ReadLine();
+        }
+
+        StreamWriter sw = new StreamWriter(archivo, true);
+
+        sw.WriteLine(nombre + "," + telefono + "," + correo);
+
+        sw.Close();
+
+        Console.WriteLine("\nContacto guardado correctamente.");
+    }
+
+    static void MostrarContactos()
+    {
+        if (!File.Exists(archivo))
+        {
+            Console.WriteLine("\nNo existen contactos registrados.");
+            return;
+        }
+
+        StreamReader sr = new StreamReader(archivo);
+
+        string linea;
+
+        Console.WriteLine("\n===== LISTA DE CONTACTOS =====\n");
+
+        while ((linea = sr.ReadLine()) != null)
+        {
+            string[] datos = linea.Split(',');
+
+            Console.WriteLine("Nombre   : " + datos[0]);
+            Console.WriteLine("Teléfono : " + datos[1]);
+            Console.WriteLine("Correo   : " + datos[2]);
+            Console.WriteLine("---------------------------");
+        }
+
+        sr.Close();
+    }
+}
