@@ -1,0 +1,127 @@
+// 10. Biblioteca escolar
+// La biblioteca de un colegio necesita controlar el préstamo de libros
+// El sistema debe registrar el nombre del estudiante, el libro prestado y la fecha de devolución
+
+using System;
+using System.IO;
+
+class Program
+{
+    static string archivo = "prestamos.csv";
+
+    static void Main()
+    {
+        int opcion;
+
+        do
+        {
+            Console.Clear();
+
+            Console.WriteLine("=== BIBLIOTECA ESCOLAR ===");
+            Console.WriteLine("1. Registrar préstamo");
+            Console.WriteLine("2. Mostrar préstamos");
+            Console.WriteLine("3. Salir");
+
+            Console.Write("\nSeleccione una opción: ");
+
+            while (!int.TryParse(Console.ReadLine(), out opcion))
+            {
+                Console.Write("Ingrese una opción válida: ");
+            }
+
+            switch (opcion)
+            {
+                case 1:
+                    RegistrarPrestamo();
+                    break;
+
+                case 2:
+                    MostrarPrestamos();
+                    break;
+
+                case 3:
+                    Console.WriteLine("Programa finalizado.");
+                    break;
+
+                default:
+                    Console.WriteLine("Opción incorrecta.");
+                    break;
+            }
+
+            if (opcion != 3)
+            {
+                Console.WriteLine("\nPresione una tecla para continuar...");
+                Console.ReadKey();
+            }
+
+        } while (opcion != 3);
+    }
+
+    static void RegistrarPrestamo()
+    {
+        string estudiante;
+        string libro;
+        DateTime fecha;
+
+        Console.Write("Nombre del estudiante: ");
+        estudiante = Console.ReadLine() ?? "";
+
+        while (string.IsNullOrWhiteSpace(estudiante))
+        {
+            Console.Write("Ingrese un nombre válido: ");
+            estudiante = Console.ReadLine() ?? "";
+        }
+
+        Console.Write("Libro prestado: ");
+        libro = Console.ReadLine() ?? "";
+
+        while (string.IsNullOrWhiteSpace(libro))
+        {
+            Console.Write("Ingrese un libro válido: ");
+            libro = Console.ReadLine() ?? "";
+        }
+
+        Console.Write("Fecha de devolución (dd/mm/yyyy): ");
+
+        while (!DateTime.TryParse(Console.ReadLine(), out fecha))
+        {
+            Console.Write("Ingrese una fecha válida: ");
+        }
+
+        StreamWriter sw = new StreamWriter(archivo, true);
+
+        sw.WriteLine(estudiante + "," + libro + "," +
+                     fecha.ToString("dd/MM/yyyy"));
+
+        sw.Close();
+
+        Console.WriteLine("\nPréstamo registrado correctamente.");
+    }
+
+    static void MostrarPrestamos()
+    {
+        if (!File.Exists(archivo))
+        {
+            Console.WriteLine("\nNo existen préstamos registrados.");
+            return;
+        }
+
+        StreamReader sr = new StreamReader(archivo);
+
+        string linea;
+
+        Console.WriteLine("\n=== LISTA DE PRÉSTAMOS ===\n");
+
+        while ((linea = sr.ReadLine()) != null)
+        {
+            string[] datos = linea.Split(',');
+
+            Console.WriteLine("Estudiante : " + datos[0]);
+            Console.WriteLine("Libro      : " + datos[1]);
+            Console.WriteLine("Devolución : " + datos[2]);
+            Console.WriteLine("--------------------------");
+        }
+
+        sr.Close();
+    }
+}
