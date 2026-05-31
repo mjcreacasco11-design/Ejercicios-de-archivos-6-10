@@ -1,0 +1,144 @@
+// 7. Monitoreo de temperaturas
+// Una estación meteorológica registra temperaturas durante toda la semana.
+// El sistema debe almacenar las temperaturas diarias y posteriormente calcular la temperatura promedio
+
+using System;
+using System.IO;
+
+class Temperaturas
+{
+    static string archivo = "temperaturas.txt";
+
+    static void Main()
+    {
+        int opcion;
+
+        do
+        {
+            Console.Clear();
+
+            Console.WriteLine("=== MONITOREO DE TEMPERATURAS ===");
+            Console.WriteLine("1. Registrar temperatura");
+            Console.WriteLine("2. Mostrar temperaturas");
+            Console.WriteLine("3. Calcular promedio");
+            Console.WriteLine("4. Salir");
+
+            Console.Write("Seleccione una opción: ");
+
+            while (!int.TryParse(Console.ReadLine(), out opcion))
+            {
+                Console.Write("Ingrese una opción válida: ");
+            }
+
+            switch (opcion)
+            {
+                case 1:
+                    RegistrarTemperatura();
+                    break;
+
+                case 2:
+                    MostrarTemperaturas();
+                    break;
+
+                case 3:
+                    CalcularPromedio();
+                    break;
+
+                case 4:
+                    Console.WriteLine("Programa finalizado.");
+                    break;
+
+                default:
+                    Console.WriteLine("Opción incorrecta.");
+                    break;
+            }
+
+            if (opcion != 4)
+            {
+                Console.WriteLine("\nPresione una tecla para continuar...");
+                Console.ReadKey();
+            }
+
+        } while (opcion != 4);
+    }
+
+    static void RegistrarTemperatura()
+    {
+        double temperatura;
+
+        Console.Write("\nIngrese temperatura: ");
+
+        while (!double.TryParse(Console.ReadLine(), out temperatura))
+        {
+            Console.Write("Valor inválido. Intente nuevamente: ");
+        }
+
+        StreamWriter sw = new StreamWriter(archivo, true);
+
+        sw.WriteLine(temperatura);
+
+        sw.Close();
+
+        Console.WriteLine("Temperatura registrada correctamente.");
+    }
+
+    static void MostrarTemperaturas()
+    {
+        if (!File.Exists(archivo))
+        {
+            Console.WriteLine("\nNo existen registros.");
+            return;
+        }
+
+        StreamReader sr = new StreamReader(archivo);
+
+        string linea;
+        int dia = 1;
+
+        Console.WriteLine("\nTemperaturas registradas:\n");
+
+        while ((linea = sr.ReadLine()) != null)
+        {
+            Console.WriteLine("Día " + dia + ": " + linea + " °C");
+            dia++;
+        }
+
+        sr.Close();
+    }
+
+    static void CalcularPromedio()
+    {
+        if (!File.Exists(archivo))
+        {
+            Console.WriteLine("\nNo existen registros.");
+            return;
+        }
+
+        StreamReader sr = new StreamReader(archivo);
+
+        string linea;
+        double suma = 0;
+        int cantidad = 0;
+
+        while ((linea = sr.ReadLine()) != null)
+        {
+            suma += Convert.ToDouble(linea);
+            cantidad++;
+        }
+
+        sr.Close();
+
+        if (cantidad > 0)
+        {
+            double promedio = suma / cantidad;
+
+            Console.WriteLine("\nTemperatura promedio: "
+                              + promedio.ToString("F2")
+                              + " °C");
+        }
+        else
+        {
+            Console.WriteLine("No hay datos para calcular.");
+        }
+    }
+}
